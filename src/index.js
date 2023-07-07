@@ -1,6 +1,7 @@
 const { Client, IntentsBitField } = require('discord.js');
 const { validCategories, fullCategories, validSubCategories, fullSubCategories, validDifficulties, getParameters, replaceAbbreviations } = require('./categories.js');
 const { url, getQuestion } = require('./api_call.js');
+require('dotenv').config();
 
 const client = new Client({
     intents: [
@@ -51,4 +52,4 @@ client.on('messageCreate', async (message) => {
     }
 });
 
-client.login("MTEyNjk1MzE1NzAzODE5ODc5NA.GQG6mf.BpNYKrM5zG_nPc0OjtM7-v1LgkpTB0R0A1luh8");
+client.login(process.env.TOKEN);
