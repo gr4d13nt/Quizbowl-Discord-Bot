@@ -32,7 +32,7 @@ client.on('messageCreate', async (message) => {
         });
     }
     const data = channelData.get(channel);
-    if (message.content.startsWith('.pk' && !data.pkActive)) {
+    if (message.content.startsWith('.pk') && !data.pkActive) {
         const params = message.content.slice(4).split(' ');
         cats = getParameters(params, validCategories);
         subcats = getParameters(params, validSubCategories);
@@ -44,7 +44,7 @@ client.on('messageCreate', async (message) => {
             ['subcategories', subcats],
             ['difficulties', diffs]
         ];
-        pkActive = true;
+        data.pkActive = true;
         if (data.currBonusPart === 1) {
             data.question = await getQuestion(paramArray);
             if (!(data.question[0] === '')) {
@@ -53,7 +53,7 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    if (message.content.startsWith('.a ' && data.pkActive)) {
+    if (message.content.startsWith('.a ') && data.pkActive) {
         client.channels.cache.get(channel).send(data.question[data.currBonusPart * 2]);
         if (data.currBonusPart < 3) {
             client.channels.cache.get(channel).send('[10] ' + data.question[data.currBonusPart * 2 + 1]);
@@ -73,13 +73,14 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    if (message.content === '.end') {
+    if (message.content === '.end' && data.pkActive) {
         data.pkActive = false;
         data.currBonusPart = 1;
         data.question = [];
         data.cats = [];
         data.subcats = [];
         data.diffs = [];
+        client.channels.cache.get(channel).send('pk ended\nPPB: 0');
     }
 
     if (message.mentions.has(client.user)) {
