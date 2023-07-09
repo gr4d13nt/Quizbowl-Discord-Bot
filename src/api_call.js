@@ -18,10 +18,11 @@ async function getQuestion(paramArray) {
     const answer2 = qdata.bonuses[0]['answers'][1];
     const part3 = qdata.bonuses[0]['parts'][2];
     const answer3 = qdata.bonuses[0]['answers'][2];
+    const set = qdata.bonuses[0]['setName'];
     // const formattedAnswer1 = qdata.bonuses[0]['formatted_answers'][0];
     // const formattedAnswer2 = qdata.bonuses[0]['formatted_answers'][1];
     // const formattedAnswer3 = qdata.bonuses[0]['formatted_answers'][2];
-    return [leadin, part1, answer1, part2, answer2, part3, answer3];
+    return [leadin, part1, answer1, part2, answer2, part3, answer3, set];
 }
 
 module.exports = { url, getQuestion };
