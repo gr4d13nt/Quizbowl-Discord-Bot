@@ -18,7 +18,7 @@ client.on('ready', () => {
     client.user.setPresence({
         activities: [{ name: `hentai`, type: ActivityType.Watching }],
         status: 'dnd',
-      });
+    });
 });
 
 // stores data for each channel; allows a pk session to go on in multiple channels
@@ -42,7 +42,7 @@ client.on('messageCreate', async (message) => {
         });
     }
     const data = channelData.get(channel);
-    
+
     // starts a pk if there is not one already active in the channel
     if (message.content.startsWith('.pk') && !data.pkActive) {
         const params = message.content.slice(4).split(' ');
@@ -126,8 +126,28 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    // skip the bonus (implement later)
-    if (message.content === '.skip' && data.pkActive) { }
+    // skip the current bonus (and doesn't count points earned from it) and call getQuestion again to get a new bonus
+    if (message.content === '.skip' && data.pkActive) {
+        if (data.partsCorrect === 1) {
+            data.totalPoints -= 10;
+        }
+        else if (data.partsCorrect === 2) {
+            data.totalPoints -= 20;
+        }
+        data.currBonusPart = 1;
+        data.partsCorrect = 0;
+        data.question = [];
+        data.correctingAnswer = false;
+        const paramArray = [
+            ['categories', cats],
+            ['subcategories', subcats],
+            ['difficulties', diffs]
+        ];
+        data.question = await getQuestion(paramArray);
+        if (!(data.question[0] === '')) {
+            client.channels.cache.get(channel).send(data.question[7] + '\n' + data.question[0] + '\n[10] ' + data.question[1]);
+        }
+    }
 
     // sends a message with points per bonus, total points, and bonuses heard (-10 and -20 are to account for the fact that it doesn't factor in the current bonus)
     if (message.content === '.score' && data.pkActive) {
@@ -171,8 +191,10 @@ client.on('messageCreate', async (message) => {
             'The valid difficulties are 1-10\n\n' +
             'For example, if you wanted to pk American Literature 6 and 7, you would type ".pk lit amlit 6 7"\n\n' +
             'Notice that if you want to pk a certain subcategory, you must also specify the category\n\n' +
-            'You can also pk multiple categories/subcategories, such as ".pk lit amlit sci bio 6"'
-        );
+            'You can also pk multiple categories/subcategories, such as ".pk lit amlit sci bio 6"' +
+            'If you want to see your score, type ".score"\n\n' +
+            'If you want to skip a bonus, type ".skip"\n\n' +
+            'If you want to end the pk session, type ".end"');
     }
 
     // trolling
