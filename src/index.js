@@ -87,6 +87,9 @@ client.on('messageCreate', async (message) => {
 
     if (message.content === 'n' && data.pkActive && data.correctingAnswer) {
         data.correctingAnswer = false;
+
+        message.reply('literal garbage. you should kill yourself NOW!!!!!');
+
         if (data.currBonusPart < 3) {
             // sends next part of bonus
             client.channels.cache.get(channel).send('[10] ' + data.question[data.currBonusPart * 2 + 1]);
@@ -112,13 +115,13 @@ client.on('messageCreate', async (message) => {
 
     if (message.content === '.score' && data.pkActive) {
         if (data.currBonusPart === 1) {
-            client.channels.cache.get(channel).send('PPB: ' + Math.round(100*(data.totalPoints) / data.bonusesHeard) / 100 + ' (' + data.totalPoints + ' points over ' + data.bonusesHeard + ' bonuses heard)');
+            client.channels.cache.get(channel).send('PPB: ' + Math.round(100 * (data.totalPoints) / data.bonusesHeard) / 100 + ' (' + data.totalPoints + ' points over ' + data.bonusesHeard + ' bonuses heard)');
         }
         else if (data.currBonusPart === 2) {
-            client.channels.cache.get(channel).send('PPB: ' + Math.round(100*(data.totalPoints-10) / data.bonusesHeard) / 100 + ' (' + (data.totalPoints-10) + ' points over ' + data.bonusesHeard + ' bonuses heard)');
+            client.channels.cache.get(channel).send('PPB: ' + Math.round(100 * (data.totalPoints - 10) / data.bonusesHeard) / 100 + ' (' + (data.totalPoints - 10) + ' points over ' + data.bonusesHeard + ' bonuses heard)');
         }
         else {
-            client.channels.cache.get(channel).send('PPB: ' + Math.round(100*(data.totalPoints-20) / data.bonusesHeard) / 100 + ' (' + (data.totalPoints-20) + ' points over ' + data.bonusesHeard + ' bonuses heard)');
+            client.channels.cache.get(channel).send('PPB: ' + Math.round(100 * (data.totalPoints - 20) / data.bonusesHeard) / 100 + ' (' + (data.totalPoints - 20) + ' points over ' + data.bonusesHeard + ' bonuses heard)');
         }
     }
 
@@ -131,16 +134,26 @@ client.on('messageCreate', async (message) => {
         data.diffs = [];
         data.correctingAnswer = false;
         if (data.currBonusPart === 1) {
-            client.channels.cache.get(channel).send('PPB: ' + Math.round(100*(data.totalPoints) / data.bonusesHeard) / 100 + ' (' + data.totalPoints + ' points over ' + data.bonusesHeard + ' bonuses heard)');
+            client.channels.cache.get(channel).send('PPB: ' + Math.round(100 * (data.totalPoints) / data.bonusesHeard) / 100 + ' (' + data.totalPoints + ' points over ' + data.bonusesHeard + ' bonuses heard)');
         }
         else if (data.currBonusPart === 2) {
-            client.channels.cache.get(channel).send('PPB: ' + Math.round(100*(data.totalPoints-10) / data.bonusesHeard) / 100 + ' (' + (data.totalPoints-10) + ' points over ' + data.bonusesHeard + ' bonuses heard)');
+            client.channels.cache.get(channel).send('PPB: ' + Math.round(100 * (data.totalPoints - 10) / data.bonusesHeard) / 100 + ' (' + (data.totalPoints - 10) + ' points over ' + data.bonusesHeard + ' bonuses heard)');
         }
         else {
-            client.channels.cache.get(channel).send('PPB: ' + Math.round(100*(data.totalPoints-20) / data.bonusesHeard) / 100 + ' (' + (data.totalPoints-20) + ' points over ' + data.bonusesHeard + ' bonuses heard)');
+            client.channels.cache.get(channel).send('PPB: ' + Math.round(100 * (data.totalPoints - 20) / data.bonusesHeard) / 100 + ' (' + (data.totalPoints - 20) + ' points over ' + data.bonusesHeard + ' bonuses heard)');
         }
         data.totalPoints = 0;
         data.bonusesHeard = 0;
+    }
+
+    if (message.content === '.help') {
+        message.reply('The valid categories are fa, hist, lit, sci, ce, geo, myth, philo, religion, ss, trash, other\n\n' +
+          'The valid subcategories are afa, ofa, vfa, amhist, ancienthist, eurohist, whist, ohist, amlit, britlit, classicallit, eurolit, wlit, olit, bio, chem, math, osci, physics\n\n' +
+          'The valid difficulties are 1-10\n\n' +
+          'For example, if you wanted to pk American Literature 6 and 7, you would type ".pk lit amlit 6 7"\n\n' +
+          'Notice that if you want to pk a certain subcategory, you must also specify the category\n\n' +
+          'You can also pk multiple categories/subcategories, such as ".pk lit amlit sci bio 6"'
+        );
     }
 
     if (message.mentions.has(client.user)) {
