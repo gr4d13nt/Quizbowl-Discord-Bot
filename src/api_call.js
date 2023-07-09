@@ -1,3 +1,4 @@
+// correctly formats the url with the parameters extracted from .pk message
 function getUrlWithParams(url, paramArray) {
     const queryString = new URLSearchParams(paramArray).toString();
     const urlWithParams = `${url}?${queryString}`;
