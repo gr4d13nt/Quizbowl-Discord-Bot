@@ -1,5 +1,3 @@
-
-
 function getUrlWithParams(url, paramArray) {
     const queryString = new URLSearchParams(paramArray).toString();
     const urlWithParams = `${url}?${queryString}`;
