@@ -166,7 +166,6 @@ client.on('messageCreate', async (message) => {
     if (message.content === '.end' && data.pkActive) {
         data.pkActive = false;
         data.currBonusPart = 1;
-        data.partsCorrect = 0;
         data.question = [];
         data.cats = [];
         data.subcats = [];
@@ -183,6 +182,7 @@ client.on('messageCreate', async (message) => {
         }
         data.totalPoints = 0;
         data.bonusesHeard = 0;
+        data.partsCorrect = 0;
     }
 
     if (message.content === '.help') {
@@ -191,7 +191,8 @@ client.on('messageCreate', async (message) => {
             'The valid difficulties are 1-10\n\n' +
             'For example, if you wanted to pk American Literature 6 and 7, you would type ".pk lit amlit 6 7"\n\n' +
             'Notice that if you want to pk a certain subcategory, you must also specify the category\n\n' +
-            'You can also pk multiple categories/subcategories, such as ".pk lit amlit sci bio 6"' +
+            'You can also pk multiple categories/subcategories, such as ".pk lit amlit sci bio 6"\n\n' +
+            'To give an answer, type ".a " followed by your answer. Messages without ".a " will be ignored by the bot\n\n' +
             'If you want to see your score, type ".score"\n\n' +
             'If you want to skip a bonus, type ".skip"\n\n' +
             'If you want to end the pk session, type ".end"');
@@ -201,6 +202,12 @@ client.on('messageCreate', async (message) => {
     if (message.mentions.has(client.user)) {
         // Reply to the mention
         message.reply('You gonna stay on my dick until you die. You serve no purpose in life. Your purpose in life is to be on my stream sucking on my dick daily. Your purpose in life is to be in that chat blowing the dick daily. Your life is nothing, you serve zero purpose. You should kill yourself, NOW.');
+    }
+
+    // even more trolling
+    if (message.content === 'kys') {
+        message.delete()
+        client.channels.cache.get(channel).send('https://tenor.com/bPEo1.gif')
     }
 });
 
