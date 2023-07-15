@@ -1,4 +1,5 @@
 const { Client, IntentsBitField, ActivityType } = require('discord.js');
+const dataStorage = require('./dataStorage.js');
 const { validCategories, fullCategories, validSubCategories, fullSubCategories, validDifficulties, getParameters, replaceAbbreviations } = require('./categories.js');
 const { url, getQuestion } = require('./api_call.js');
 require('dotenv').config();
@@ -13,19 +14,31 @@ const client = new Client({
     ],
 });
 
+// stores data for each channel; allows a pk session to go on in multiple channels
+const channelData = new Map();
+
+// for storing total bonuses, total points, and total sessions for each user
+const userVariables = new Map();
+
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
     client.user.setPresence({
         activities: [{ name: `hentai`, type: ActivityType.Watching }],
         status: 'dnd',
     });
+    const savedData = dataStorage.readData();
+    for (const userId in savedData) {
+        userVariables.set(userId, savedData[userId]);
+    }
 });
-
-// stores data for each channel; allows a pk session to go on in multiple channels
-const channelData = new Map();
 
 client.on('messageCreate', async (message) => {
     let channel = message.channel.id;
+    const userId = message.author.id;
+
+    // Retrieve user-specific variable from the map
+    let userVariable = userVariables.get(userId) || {};
+
     if (!channelData.has(channel)) {
         // Create a new object to store channel-specific data
         channelData.set(channel, {
@@ -63,6 +76,13 @@ client.on('messageCreate', async (message) => {
                 client.channels.cache.get(channel).send(data.question[7] + '\n' + data.question[0] + '\n[10] ' + data.question[1]);
             }
         }
+
+        userVariable.totalSessions = (userVariable.totalSessions || 0) + 1;
+        userVariables.set(userId, userVariable);
+        dataStorage.writeData({
+            ...dataStorage.readData(),
+            [userId]: userVariable,
+        });
     }
 
     // .a is the command to give an answer; you will be prompted to type 'y' or 'n' to indicate whether your answer was correct
@@ -95,7 +115,14 @@ client.on('messageCreate', async (message) => {
             if (!(data.question[0] === '')) {
                 client.channels.cache.get(channel).send(data.question[7] + '\n' + data.question[0] + '\n[10] ' + data.question[1]);
             }
+            userVariable.globalBonuses = (userVariable.globalBonuses || 0) + 1;
         }
+        userVariable.globalPoints = (userVariable.globalPoints || 0) + 10;
+        userVariables.set(userId, userVariable);
+        dataStorage.writeData({
+            ...dataStorage.readData(),
+            [userId]: userVariable,
+        });
     }
 
     // if the given answer is incorrect, send the next part without adding to the score
@@ -123,7 +150,13 @@ client.on('messageCreate', async (message) => {
             if (!(data.question[0] === '')) {
                 client.channels.cache.get(channel).send(data.question[7] + '\n' + data.question[0] + '\n[10] ' + data.question[1]);
             }
+            userVariable.globalBonuses = (userVariable.globalBonuses || 0) + 1;
         }
+        userVariables.set(userId, userVariable);
+        dataStorage.writeData({
+            ...dataStorage.readData(),
+            [userId]: userVariable,
+        });
     }
 
     // skip the current bonus (and doesn't count points earned from it) and call getQuestion again to get a new bonus
@@ -185,13 +218,22 @@ client.on('messageCreate', async (message) => {
         data.partsCorrect = 0;
     }
 
+    if (message.content === '.stats') {
+        const userVariable = userVariables.get(userId);
+        if (userVariable) {
+            message.reply('You have scored **' + userVariable.globalPoints + '** points in **' + userVariable.globalBonuses + '** bonuses over **' + userVariable.totalSessions + '** pk sessions');
+        }
+        else {
+            message.reply('You have played 0 bonuses in total');
+        }
+    }
+
     if (message.content === '.help') {
         message.reply('The valid categories are fa, hist, lit, sci, ce, geo, myth, philo, religion, ss, trash, other\n\n' +
             'The valid subcategories are afa, ofa, vfa, amhist, ancienthist, eurohist, whist, ohist, amlit, britlit, classicallit, eurolit, wlit, olit, bio, chem, math, osci, physics\n\n' +
             'The valid difficulties are 1-10\n\n' +
-            'For example, if you wanted to pk American Literature 6 and 7, you would type ".pk lit amlit 6 7"\n\n' +
-            'Notice that if you want to pk a certain subcategory, you must also specify the category\n\n' +
-            'You can also pk multiple categories/subcategories, such as ".pk lit amlit sci bio 6"\n\n' +
+            'For example, if you wanted to pk American Literature 6 and 7, you would type ".pk amlit 6 7"\n\n' +
+            'You can also pk multiple categories/subcategories, such as ".pk amlit bio 6"\n\n' +
             'To give an answer, type ".a " followed by your answer. Messages without ".a " will be ignored by the bot\n\n' +
             'If you want to see your score, type ".score"\n\n' +
             'If you want to skip a bonus, type ".skip"\n\n' +
@@ -200,7 +242,6 @@ client.on('messageCreate', async (message) => {
 
     // trolling
     if (message.mentions.has(client.user)) {
-        // Reply to the mention
         message.reply('You gonna stay on my dick until you die. You serve no purpose in life. Your purpose in life is to be on my stream sucking on my dick daily. Your purpose in life is to be in that chat blowing the dick daily. Your life is nothing, you serve zero purpose. You should kill yourself, NOW.');
     }
 
