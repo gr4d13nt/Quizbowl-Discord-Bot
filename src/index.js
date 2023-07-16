@@ -224,7 +224,20 @@ client.on('messageCreate', async (message) => {
             message.reply('You have scored **' + userVariable.globalPoints + '** points in **' + userVariable.globalBonuses + '** bonuses over **' + userVariable.totalSessions + '** pk sessions');
         }
         else {
-            message.reply('You have played 0 bonuses in total');
+            message.reply('kill yourself');
+        }
+    }
+
+    if (message.content.startsWith('.stats ')) {
+        const mentionedUser = message.mentions.users.first();
+        if (mentionedUser) {
+            const userVariable = userVariables.get(mentionedUser.id);
+            if (userVariable) {
+                message.reply(mentionedUser.username + ' has scored **' + userVariable.globalPoints + '** points in **' + userVariable.globalBonuses + '** bonuses over **' + userVariable.totalSessions + '** pk sessions');
+            }
+            else {
+                message.reply('kill yourself');
+            }
         }
     }
 
